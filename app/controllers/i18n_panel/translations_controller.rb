@@ -7,6 +7,8 @@ module I18nPanel
     # GET /translations
     def index
       @translations = Translation.all
+      @count = @translations.length
+      @total = @translations.length
     end
 
     # GET /translations/1
@@ -52,7 +54,7 @@ module I18nPanel
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_translation
-        @translation = Translation.find_by(key: params[:id])
+        @translation = Translation.find_by(key: Translation.unescape_key(params[:id].to_s))
       end
 
       # Only allow a trusted parameter "white list" through.
