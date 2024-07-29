@@ -6,14 +6,19 @@ module I18nPanel
 
     # GET /translations
     def index
-      @translations = Translation.all
+      @translations =
+        if params[:scope] == 'all'
+          Translation.all
+        else
+          Translation.roots
+        end
       @count = @translations.length
       @total = @translations.length
     end
 
     # GET /translations/1
     def show
-      @related_translations = @translation.related_translations
+      @translation.root_node = @translation.value.is_a?(Hash) || @translation.value.nil?
     end
 
     # GET /translations/new

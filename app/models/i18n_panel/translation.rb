@@ -15,12 +15,13 @@ module I18nPanel
       activerecord.errors.models.doorkeeper/application faker i18n_tasks
     ].freeze
 
-    attr_reader :key, :value, :locale
+    attr_accessor :key, :value, :locale, :root_node
 
     def initialize(attributes)
       @key = attributes[:key]
       @value = attributes[:value]
       @locale = attributes[:locale]
+      @root_node = attributes[:root_node]
     end
 
     def self.all
@@ -33,6 +34,23 @@ module I18nPanel
       end
       # Return only the Translation objects
       translations.values
+    end
+
+    def self.roots
+      backend = I18n.backend.translations
+      locales = backend.keys
+      # Use a hash to store only unique key translations
+      arr = []
+
+      locales.each do |locale|
+        branch = backend[locale]
+        keys = branch.respond_to?(:keys) ? branch.keys.map(&:to_s) : []
+        # Store only the unique keys
+        arr |= keys
+      end
+      arr.reject! { |key| SKIPPED_KEYS.include?(key) }
+      # Return only the Translation objects
+      arr.map { |key| Translation.new(key: key.to_s, root_node: true) }
     end
 
     def self.translation_lookup(value:, full_key:, locale:, collection: {})
@@ -77,7 +95,7 @@ module I18nPanel
         next if self.class::PLURAL_FORMS.include?(last_part) && self.class.plural_forms(locale).exclude?(last_part)
 
         value = I18n.backend.send(:lookup, locale, key)
-        arr << Translation.new(key: key, value: value, locale: locale.to_s)
+        arr << Translation.new(key: key, value: value, locale: locale.to_s, root_node: value.is_a?(Hash))
       end
       arr
     end

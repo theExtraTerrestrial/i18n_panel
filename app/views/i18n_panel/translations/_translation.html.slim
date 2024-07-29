@@ -1,0 +1,12 @@
+p
+  strong Key:
+  = translation.key
+
+- if translation.root_node
+  = render 'translations', translations: translation.related_translations
+- else
+  ul
+    - translation.related_translations.each do |related_translation|
+      li
+        strong = "#{related_translation.locale.upcase} :"
+        = related_translation.value

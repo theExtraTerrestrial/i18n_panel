@@ -1,0 +1,19 @@
+table
+  thead
+    tr
+      th Key
+      th Value
+      th colspan="3"
+
+  tbody
+    - translations.each do |translation|
+      tr
+        td = translation.key
+        td = translation.value
+        td = link_to 'Show', translation_path(id: translation.to_param)
+        td = link_to 'Edit', edit_translation_path(translation)
+
+  tfoot
+    tr
+      - count = [translations.length, @total].join(' of ')
+      td colspan="5" = "#{count} records"
